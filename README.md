@@ -1,6 +1,7 @@
 # 🤖 iRobot Create: Autonomous Maze Navigator (A* Baseline)
 
 ![Build Status](https://shields.io)
+![Robotics](https://shields.io)
 ![Python](https://img.shields.io)
 ![Webots](https://img.shields.io)
 ![AI](https://shields.io)
@@ -8,29 +9,30 @@
 
 
 This repository features an autonomous navigation stack for an iRobot Create in Webots. It bridges classical A* pathfinding with GPS/Compass sensor fusion, serving as a baseline for my ongoing research into Vision-Language-Action (VLA) models.
+The current system architecture follows a Sense-Plan-Act loop, where GPS and Compass data are fused to ground the A Pathfinding algorithm*, which then generates motor commands for the iRobot Create differential-drive system.
 
 
 ![](iRobot.gif)
 
 # 📖 Technical Report 
 
-For a deep dive into the Webots environment setup, sensor calibration (GPS/Compass), and A* implementation details, read the [Full Technical Report].
+For a deep dive into the Webots environment setup, sensor calibration (GPS/Compass), and A* implementation details, read the [Technical Report](https://github.com/uttara-tech/Autonomous-Maze-Solver-Webots/blob/main/docs/Technical%20Report.pdf).
 
 # 🚀 Technical Specifications
 
-**Heuristic-Based Planning** 
+* **Heuristic-Based Planning** 
 
 Implemented the A Search Algorithm* using a Manhattan distance heuristic for optimal pathfinding in a 4-connected discrete grid.
 
-**Sensor Fusion & Localization**
+* **Sensor Fusion & Localization**
 
 Synchronized GPS (global position) and Compass (heading) data to achieve sub-degree accuracy during 90-degree pivot turns.
 
-**Environment Discretization**
+* **Environment Discretization**
 
 Developed a mapping layer that translates continuous 3D Webots coordinates into a 10x10 occupancy grid for real-time obstacle avoidance.
 
-**Kinematic Control**
+* **Kinematic Control**
 
 Translated waypoint coordinates into Differential Drive wheel velocities, ensuring smooth trajectory execution.
 

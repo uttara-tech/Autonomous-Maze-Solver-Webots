@@ -12,7 +12,7 @@ This repository features an autonomous navigation stack for an iRobot Create in 
 The current system architecture follows a Sense-Plan-Act loop, where GPS and Compass data are fused to ground the A Pathfinding algorithm*, which then generates motor commands for the iRobot Create differential-drive system.
 
 
-![](iRobot.gif)
+![](media/iRobot.gif)
 
 # 📖 Technical Report 
 

@@ -4,12 +4,13 @@
 This repository features an autonomous navigation stack for an iRobot Create in Webots. It bridges classical A* pathfinding with GPS/Compass sensor fusion, serving as a baseline for my ongoing research into Vision-Language-Action (VLA) models.
 The current system architecture follows a Sense-Plan-Act loop, where GPS and Compass data are fused to ground the A Pathfinding algorithm*, which then generates motor commands for the iRobot Create differential-drive system.
 
-
 ![](media/iRobot.gif)
 
 # 📖 Technical Report 
 
 For a deep dive into the Webots environment setup, sensor calibration (GPS/Compass), and A* implementation details, read the [Technical Report](https://github.com/uttara-tech/Autonomous-Maze-Solver-Webots/blob/main/docs/Technical%20Report.pdf).
+
+![](media/autonomous_onstacle_avoidance.mp4)
 
 # 🚀 Technical Specifications
 

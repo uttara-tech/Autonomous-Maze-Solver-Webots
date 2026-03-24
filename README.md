@@ -10,7 +10,7 @@ The current system architecture follows a Sense-Plan-Act loop, where GPS and Com
 
 For a deep dive into the Webots environment setup, sensor calibration (GPS/Compass), and A* implementation details, read the [Technical Report](https://github.com/uttara-tech/Autonomous-Maze-Solver-Webots/blob/main/docs/Technical%20Report.pdf).
 
-![](media/autonomous_onstacle_avoidance.mp4)
+![Watch the video](media/autonomous_onstacle_avoidance.mp4)
 
 # 🚀 Technical Specifications
 

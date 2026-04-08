@@ -1,8 +1,8 @@
 # 🤖 iRobot Create: Autonomous Maze Navigator (A* Baseline)
 
 
-This repository features an autonomous navigation stack for an iRobot Create in Webots. It bridges classical A* pathfinding with GPS/Compass sensor fusion, serving as a baseline for my ongoing research into Vision-Language-Action (VLA) models.
-The current system architecture follows a Sense-Plan-Act loop, where GPS and Compass data are fused to ground the A Pathfinding algorithm*, which then generates motor commands for the iRobot Create differential-drive system.
+This repository features an autonomous navigation stack for an iRobot Create in Webots. It bridges classical A* pathfinding with GPS/Compass sensor fusion, serving as a baseline for my ongoing research into vision-driven autonomous navigation.
+The current system architecture follows a Sense-Plan-Act loop, where GPS and Compass data are fused to ground the A* Pathfinding algorithm, which then generates motor commands for the iRobot Create differential-drive system.
 
 ![](media/iRobot.gif)
 
@@ -13,9 +13,9 @@ For a deep dive into the Webots environment setup, sensor calibration (GPS/Compa
 
 # 🚀 Technical Specifications
 
-* **Heuristic-Based Planning** 
+* **Path Planning** 
 
-Implemented the A Search Algorithm* using a Manhattan distance heuristic for optimal pathfinding in a 4-connected discrete grid.
+Integrated an A* pathfinding algorithm for optimal navigation on 4-connected discrete grids.
 
 * **Sensor Fusion & Localization**
 
@@ -31,7 +31,7 @@ Translated waypoint coordinates into Differential Drive wheel velocities, ensuri
 
 ## 📊 Baseline Performance Evaluation: iRobot A* Navigator
 
-This section  outlines the benchmark results for the **A* Navigation Stack** on an iRobot Create (Roomba) within the Webots simulation environment. These metrics serve as the "Classical Baseline" for future integration with **Robot Foundation Models** and **World Models**.
+This section  outlines the benchmark results for the **A* Navigation Stack** on an iRobot Create (Roomba) within the Webots simulation environment. These metrics serve as the classical baseline for future integration with **Vision-driven Models**.
 
 ## 🚀 Mission Summary: Successful Goal Reach
 The robot was tasked with navigating a 10x10 grid maze to reach the origin coordinates **(0,0)** using GPS and Compass for localization.
@@ -48,7 +48,7 @@ The robot was tasked with navigating a 10x10 grid maze to reach the origin coord
 ## 🔍 Technical Analysis
 *   **Path Optimality** 
 
-     The robot traversed 42% of the environment to reach the goal. This indicates that the **A\* Algorithm** with the **Manhattan Heuristic** successfully calculated a direct path while accounting for wall constraints.
+     The robot traversed 42% of the environment to reach the goal. This indicates that the **A\* Algorithm** successfully calculated a direct path while accounting for wall constraints.
 
 *   **Mapping Performance** 
 
@@ -59,18 +59,15 @@ The robot was tasked with navigating a 10x10 grid maze to reach the origin coord
 
 ## 🛠️ Roadmap & Future Iterations
 This run establishes the **Baseline Competition Time** for the project. Future updates will focus on moving from "Heuristic-Based" to "Learning-Based" autonomy:
+| Milestone | Status | Description |
+| :--- | :--- | :--- |
+| **Sensor Baseline** | ✅ Complete | Distance-sensor navigation; metrics: success rate, path efficiency. |
+| **Vision Integration Prep** | 🔄 In Progress | Camera data collection and preprocessing for image-based policies. |
+| **Advanced Policies** | ⏳ Planned | Explore vision-based RL (e.g., image observations → actions) and VLA models (e.g., vision+language → actions) for zero-shot/generalist navigation. |
+| **Evaluation & Ablation** | ⏳ Planned | Compare against baseline across sim (Webots) and real-world transfer. |
 
-1)  **VLA Integration** 
 
-     Transitioning from A* coordinates to **Vision-Language-Action (VLA)** tokens to allow for natural language commands (e.g., "Go to the origin").
-
-2)  **Perception Upgrade**
-    
-     Integrating my **U-Net Semantic Segmentation** model (hosted on Hugging Face) to replace basic distance sensors with a rich visual understanding of the terrain.
-
-3)  **World Model Predictive Planning**
-    
-     Implementing a **World Model** to "imagine" trajectories, potentially reducing the completion time by anticipating obstacles before they enter the sensor range.
+*Note: Research draws from trends in embodied AI, including RL on visual states and VLA for instruction-following navigation.*
 
 ---
 *Evaluation generated on: 22 March 2026*

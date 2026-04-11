@@ -6,6 +6,17 @@ The current system architecture follows a Sense-Plan-Act loop, where GPS and Com
 
 ![](media/iRobot.gif)
 
+
+## 📈 Research Evolution: Ground → Air
+
+| Component | Folder | Status |
+|-----------|--------|--------|
+| [iRobot Controller](controller/) | Ground | ✅ Production |
+| [Vision Transformer](vision-transformer/) | Drone | 🔄 Research |
+
+**Progression**: Distance sensors → ViT+IMU fusion → Trajectory prediction
+
+
 # 📖 Technical Report 
 
 For a deep dive into the Webots environment setup, sensor calibration (GPS/Compass), and A* implementation details, read the [Technical Report](https://github.com/uttara-tech/Autonomous-Maze-Solver-Webots/blob/main/docs/Technical%20Report.pdf).

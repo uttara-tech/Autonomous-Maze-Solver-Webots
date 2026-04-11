@@ -5,13 +5,14 @@ This repository features an autonomous navigation stack for an iRobot Create in 
 The current system architecture follows a Sense-Plan-Act loop, where GPS and Compass data are fused to ground the A* Pathfinding algorithm, which then generates motor commands for the iRobot Create differential-drive system.
 
 ## 📈 Research Evolution: Ground → Air
+**iRobot Baseline → Drone Vision Transformer → VLA Models**
 
-| Component | Folder | Status |
-|-----------|--------|--------|
-| [iRobot Controller](controllers/) | Ground | ✅ Production |
-| [Vision Transformer](vision-transformer/) | Drone | 🔄 Research |
+| Stage | Platform | Component | Branch | Status |
+|-------|----------|--------|--------|--------|
+| Baseline | iRobot/Webots | [iRobot Controller](controllers/) | `main` | ✅ Complete |
+| Research | Drone/UZH-FPV | [Vision Transformer](vision-transformer/) | `drone-vision-transformer` | 🔄 Active WIP |
 
-**Progression**: Distance sensors → ViT+IMU fusion → Trajectory prediction
+
 
 ![](media/iRobot.gif)
 

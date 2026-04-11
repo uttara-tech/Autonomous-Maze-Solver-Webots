@@ -4,17 +4,17 @@
 This repository features an autonomous navigation stack for an iRobot Create in Webots. It bridges classical A* pathfinding with GPS/Compass sensor fusion, serving as a baseline for my ongoing research into vision-driven autonomous navigation.
 The current system architecture follows a Sense-Plan-Act loop, where GPS and Compass data are fused to ground the A* Pathfinding algorithm, which then generates motor commands for the iRobot Create differential-drive system.
 
-![](media/iRobot.gif)
-
-
 ## 📈 Research Evolution: Ground → Air
 
 | Component | Folder | Status |
 |-----------|--------|--------|
-| [iRobot Controller](controller/) | Ground | ✅ Production |
+| [iRobot Controller](controllers/) | Ground | ✅ Production |
 | [Vision Transformer](vision-transformer/) | Drone | 🔄 Research |
 
 **Progression**: Distance sensors → ViT+IMU fusion → Trajectory prediction
+
+![](media/iRobot.gif)
+
 
 
 # 📖 Technical Report 

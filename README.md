@@ -7,10 +7,10 @@ The current system architecture follows a Sense-Plan-Act loop, where GPS and Com
 ## 📈 Research Evolution: Ground → Air
 **iRobot Baseline → Drone Vision Transformer → VLA Models**
 
-| Stage | Platform | Component | Branch | Status |
-|-------|----------|--------|--------|--------|
-| Baseline | iRobot/Webots | [iRobot Controller](controllers/) | `main` | ✅ Complete |
-| Research | Drone/UZH-FPV | [Vision Transformer](vision-transformer/) | `drone-vision-transformer` | 🔄 Active WIP |
+| Stage | Platform | Component | Branch |Intelligence | Status |
+|-------|----------|--------|--------|--------|--------|
+| Baseline | iRobot/Webots | [iRobot Controller](controllers/) | `main` | Reactive + A* | ✅ Complete |
+| Research | Drone/UZH-FPV | [Vision Transformer](vision-transformer/) | `drone-vision-transformer` | Transformer+RL | 🔄 Active WIP |
 
 
 

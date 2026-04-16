@@ -6,9 +6,7 @@ import csv
 from bisect import bisect_left
 
 
-bag_path = Path('/Users/uni/data_files/fpv/indoor_forward_5_snapdragon_with_gt.bag')
-
-def explore_data():
+def explore_data(bag_path):
     with AnyReader([bag_path]) as reader:
         print(f"{'TOPIC':<30} | {'MSG TYPE':<30} | {'COUNT':<10}")
         print("-" * 75)
@@ -36,7 +34,7 @@ def find_nearest_pose(target_time,data,ts):
         return after
     
 
-def extract_data(DATA_DIR):
+def extract_data(bag_path,data_dir):
     
     img_data_log = []                                                   # Initializing lists to store data rows
     imu_data_log = []  
@@ -57,13 +55,13 @@ def extract_data(DATA_DIR):
                 cam_id = 0 if connection.topic =='/snappy_cam/stereo_l' else 1
                 # Please comment this line after images are saved. Optimization will folow in next commit. 
                 if cam_id == 0:
-                    cv2.imwrite(f"{DATA_DIR}/frame_{timestamp}.jpg", img)
+                    cv2.imwrite(f"{data_dir}/frame_{timestamp}.jpg", img)
 
                 img_data_log.append({
                     'timestamp':timestamp,
                     'cam_id':cam_id,
                     'image':img,
-                    'path':f'{DATA_DIR}/frame_{timestamp}.jpg'})
+                    'path':f'{data_dir}/frame_{timestamp}.jpg'})
             elif connection.msgtype == 'sensor_msgs/msg/Imu':
                 imu_data_log.append({
                     'timestamp': timestamp,
@@ -124,14 +122,14 @@ def data_synchronisation(img_data,imu_data,odometry_data,pose_data):
         })
 
     if dataset:                                                                             # Saving to CSV
-        with open('drone_dataset.csv', 'w', newline='') as f:
+        with open('data/drone_dataset.csv', 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=dataset[0].keys())
             writer.writeheader()
             writer.writerows(dataset)
         print(f"Dataset created with {len(dataset)} synchronized rows.")
     
     if imu_data:
-        with open('imu_data.csv', 'w', newline='') as f:
+        with open('data/imu_data.csv', 'w', newline='') as f:
             keys = imu_data[0].keys()
             dict_writer = csv.DictWriter(f, fieldnames=keys)
             

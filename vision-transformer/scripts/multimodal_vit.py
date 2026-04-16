@@ -1,64 +1,22 @@
 import torch
 import torch.nn as nn
 import math
-import pandas as pd
-from torch.utils.data import Dataset
-import torchvision.transforms as T
-from PIL import Image
-
-class ViTDataset(Dataset):
-    
-    def __init__(self,dataset_csv,imu_csv,image_dir,transform=None):
-        self.data_df = pd.read_csv(dataset_csv)
-        self.imu_df = pd.read_csv(imu_csv)
-        self.image_dir = image_dir
-        self.transform = transform 
-
-    def __len__(self):
-        return len(self.data_df)
-    
-        
-    def __getitem__(self, index):
-        img_path = str(self.data_df['img_path'].iloc[index])
-        image = Image.open(img_path).convert('L')
-        
-        img_ts = str(self.data_df['timestamp'].iloc[index]).split('.')[0]
-        img_ts = float(img_ts) / 1e9                                                # Convert to seconds
-
-        img_start_ts = self.data_df['imu_start_ts'].iloc[index]
-        img_end_ts = self.data_df['imu_end_ts'].iloc[index]
-
-        mask = (self.imu_df['timestamp'] >= img_start_ts) & (self.imu_df['timestamp'] <= img_end_ts)
-
-        imu_window = self.imu_df[mask]
-
-        s = len(imu_window)
-
-        if len(imu_window) > 0:                                                     # Selecting all IMU rows that fall within this window
-            imu_sample = imu_window.iloc[:, 1:s].mean().values.astype('float32')    # Taking the average (mean) of Acc and Gyro over the window
-        else:                                                                       # Fallback 
-            mid_ts = (img_start_ts + img_end_ts) / 2
-            closest_idx = (self.imu_df.iloc[:, index] - mid_ts).abs().idxmin()
-            imu_sample = self.imu_df.iloc[closest_idx, index:s].values.astype('float32')
-
-        target_pose = self.data_df.loc[index, ['pos_x', 'pos_y', 'pos_z']].values.astype('float32')
-                
-        if self.transform:
-            image = self.transform(image)
-            
-        return image, torch.tensor(imu_sample), torch.tensor(target_pose)
 
 
-    def forward(self, img, imu):
-        visual_features = self.backbone(img)
-        combined = torch.cat((visual_features, imu), dim=1)
-        return self.regressor(combined)
+"""
+MultiModalViT: Vision Transformer for UZH-FPV Trajectory Prediction
+===================================================================
+Contains:
+- PatchEmbedding: 256x256 → 256 patches (16x16)
+- TransformerEncoderBlock: 8-head attention + MLP (depth=6)
+- MultiModalViT: Img+IMU fusion → 16-step 7DoF regression head
+
+Architecture: 256 img patches + 16 IMU tokens + CLS → 273 tokens total
+"""
 
 
-
-
-# Current image size: (640, 480),
 def extract_patches(image,patch_size=16):
+    print('[INFO] Extracting patches ...')
     B, C, H, W = image.shape
     patches = image.unfold(2,patch_size,patch_size).unfold(3,patch_size,patch_size)
     patches = patches.contiguous().view(B,-1, patch_size,patch_size)       #Original (after contiguous): [1, 1, 16, 16, 16, 16], After View: [1, (1 * 16 * 16), 16, 16] --> [1,256,16,16]
@@ -79,15 +37,15 @@ class PatchEmbed(nn.Module):
         patches = extract_patches(x,self.patch_size)
         x = patches.flatten(2)              #Result: [1,256,256] --> merging H and W into 1D sequence
         x = self.proj(x)                    #Output: [1,256,out_dim] --> Learned projection of features
+        print('[INFO] Number of patches: ',self.num_patches)
         return x
     
     def forward_o(self,x):
         B, C, H, W = x.shape
         x = x.unfold(2, self.patch_size, self.patch_size).unfold(3, self.patch_size, self.patch_size)
         x = x.contiguous().view(B, -1, self.patch_size*self.patch_size*C)
-        x = self.proj(x)  # [B, 675, 256]
+        x = self.proj(x)                    #[B, 256, 256]
         return x
-    
 
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, num_heads):
@@ -120,7 +78,6 @@ class MultiHeadAttention(nn.Module):
 
         attention = self.scaled_dot_product_attention(Q,K,V)
         attention = attention.transpose(1,2).contiguous().view(B,N,C)
-
         return self.W_o(attention)
     
 
@@ -145,46 +102,73 @@ class TransformerEncoderBlock(nn.Module):
         x = self.norm2(x + self.dropout(mlp))
         return x
         
+
+class MultiModalEmbed(nn.Module):
+    def __init__(self, img_size=(256,256),patch_size=16,embed_dim=256,imu_seq_len=16):
+        super().__init__()
+        self.img_size = img_size
+        self.patch_size = patch_size
+        self.embed_dim = embed_dim
+        self.imu_seq_len = imu_seq_len
+        self.img_embed = PatchEmbed(self.img_size,self.patch_size,self.embed_dim)
+        self.num_img_patches = self.img_embed.num_patches
+
+        self.imu_proj = nn.Linear(6,embed_dim)                      #IMU embeddings: 7 values (acc+gyro+ori) --> embed_dim
+        self.imu_pose_embed = nn.Parameter(torch.randn(1,self.imu_seq_len,self.embed_dim))
+
+    def forward(self,img,imu):
+        img_tokens = self.img_embed(img)                            #IMU patches [B,256,256]
+        imu_tokens = self.imu_proj(imu)
+        tokens = torch.cat([img_tokens,imu_tokens],dim=1)           #Concatenating image tokens + imu tokens
+        return tokens
     
-class VisionTransformer(nn.Module):
+
+class MultiModalViT(nn.Module):
     def __init__(self,
                  img_size=(256,256),
                  patch_size=16,
-                 in_chans=1,
+                 imu_seq_len=16,
                  embed_dim=256,
                  depth=6,
                  n_heads=8,
                  mlp_dim=512,
                  dropout=0.1,
-                 num_classes=None
+                 pred_horizon=16
                  ):
         super().__init__()
-        self.patch_embed = PatchEmbed(img_size, patch_size, embed_dim)
-        self.cls_token = nn.Parameter(torch.randn(1,1,embed_dim))
-        self.position_embed = nn.Parameter(torch.randn(1,1 + self.patch_embed.num_patches, embed_dim))
+        self.imu_seq_len = imu_seq_len
+        self.embed_dim = embed_dim
+        self.pred_horizon = pred_horizon
+        self.n_heads = n_heads
+        self.embed = MultiModalEmbed(img_size,patch_size,embed_dim=embed_dim)
+        self.num_img_patches = self.embed.num_img_patches
+        self.cls_token = nn.Parameter(torch.randn(1,1,self.embed_dim))
+        self.position_embed = nn.Parameter(torch.randn(1,1 + self.num_img_patches+self.imu_seq_len, self.embed_dim))
 
         self.blocks = nn.ModuleList([
-            TransformerEncoderBlock(embed_dim, n_heads, mlp_dim, dropout)
+            TransformerEncoderBlock(self.embed_dim, n_heads, mlp_dim, dropout)
             for _ in range(depth)
         ])
-        self.norm = nn.LayerNorm(embed_dim)
-        self.head = nn.Linear(embed_dim, num_classes) if num_classes else nn.Identity()
+        self.norm = nn.LayerNorm(self.embed_dim)
+        self.head = nn.Linear(self.embed_dim,self.pred_horizon*7)
 
-    def forward(self,x):
+    def forward(self,x,imu):
         B = x.shape[0]
-        x = self.patch_embed(x)
+        print('[INFO] Input tensor shape [B,C,H,W]: ',x.shape)
+        x = self.embed(x,imu)
+
+        #Add class token
         cls = self.cls_token.expand(B, -1, -1)
         x = torch.cat([cls,x],dim = 1)
         x = x + self.position_embed
         
+        #Transformer blocks
         for block in self.blocks:
             x = block(x)
 
         x = self.norm(x)
         cls_out = x[:,0]
-        
+        print('[INFO] Number of heads: ', self.n_heads)
         return self.head(cls_out)
+    
 
-model = VisionTransformer(num_classes=4)
-img = torch.randn(1,1,256,256)
-features = model(img)

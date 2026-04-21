@@ -6,12 +6,16 @@ import math
 """
 MultiModalViT: Vision Transformer for UZH-FPV Trajectory Prediction
 ===================================================================
-Contains:
-- PatchEmbedding: 256x256 → 256 patches (16x16)
-- TransformerEncoderBlock: 8-head attention + MLP (depth=6)
-- MultiModalViT: Img+IMU fusion → 16-step 7DoF regression head
+    Contains:
+        - PatchEmbed: 256X256 → 256 patches (16X16)
+        - MultiModalEmbed: image + IMU token fusion
+        - TransformerEncoderBlock: 8-head self-attention + MLP (depth = 6)
+        - MultiModalViT: Img+IMU fusion → pred_horizon-step (x, y, z) position trajectory head
 
-Architecture: 256 img patches + 16 IMU tokens + CLS → 273 tokens total
+    Architecture: 256 image tokens + 16 IMU tokens + 1 [CLS] → 273 tokens total.
+    Exposes:
+        - forward_features(img, imu): CLS embedding (latent state)
+        - forward(img, imu): flattened trajectory [pred_horizon * 7].
 """
 
 
@@ -150,9 +154,10 @@ class MultiModalViT(nn.Module):
             for _ in range(depth)
         ])
         self.norm = nn.LayerNorm(self.embed_dim)
-        self.head = nn.Linear(self.embed_dim,self.pred_horizon*7)
+        self.head = nn.Linear(self.embed_dim,self.pred_horizon*3)
 
-    def forward(self,x,imu):
+
+    def forward_features(self,x,imu):
         B = x.shape[0]
         print('[INFO] Input tensor shape [B,C,H,W]: ',x.shape)
         x = self.embed(x,imu)
@@ -169,6 +174,11 @@ class MultiModalViT(nn.Module):
         x = self.norm(x)
         cls_out = x[:,0]
         print('[INFO] Number of heads: ', self.n_heads)
+        print('[INFO] CLS feature shape: ', cls_out.shape)
+        return cls_out
+    
+    def forward(self, x, imu):
+        cls_out = self.forward_features(x, imu)
         return self.head(cls_out)
     
 

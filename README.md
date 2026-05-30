@@ -1,18 +1,7 @@
 # 🤖 iRobot Create: Autonomous Maze Navigator (A* Baseline)
 
 
-This repository features an autonomous navigation stack for an iRobot Create in Webots. It bridges classical A* pathfinding with GPS/Compass sensor fusion, serving as a baseline for my ongoing research into vision-driven autonomous navigation.
-The current system architecture follows a Sense-Plan-Act loop, where GPS and Compass data are fused to ground the A* Pathfinding algorithm, which then generates motor commands for the iRobot Create differential-drive system.
-
-## 📈 Research Evolution: Ground → Air
-**iRobot Baseline → Drone Vision Transformer → VLA Models**
-
-| Stage | Platform | Component | Branch |Intelligence | Status |
-|-------|----------|--------|--------|--------|--------|
-| Baseline | iRobot/Webots | [iRobot Controller](controllers/) | `main` | Reactive + A* | ✅ Complete |
-| Research | Drone/UZH-FPV | [Vision Transformer](vision-transformer/) | `drone-vision-transformer` | Transformer+RL | 🔄 Active WIP |
-
-
+This repository features an autonomous navigation stack for an iRobot Create in Webots. It bridges classical A* pathfinding with GPS/Compass sensor fusion. The current system architecture follows a Sense-Plan-Act loop, where GPS and Compass data are fused to ground the A* Pathfinding algorithm, which then generates motor commands for the iRobot Create differential-drive system.
 
 ![](media/iRobot.gif)
 
@@ -41,9 +30,9 @@ Developed a mapping layer that translates continuous 3D Webots coordinates into 
 
 Translated waypoint coordinates into Differential Drive wheel velocities, ensuring smooth trajectory execution.
 
-## 📊 Baseline Performance Evaluation: iRobot A* Navigator
+## 📊 Performance Evaluation: iRobot A* Navigator
 
-This section  outlines the benchmark results for the **A* Navigation Stack** on an iRobot Create (Roomba) within the Webots simulation environment. These metrics serve as the classical baseline for future integration with **Vision-driven Models**.
+This section  outlines the results for the **A* Navigation Stack** on an iRobot Create (Roomba) within the Webots simulation environment.
 
 ## 🚀 Mission Summary: Successful Goal Reach
 The robot was tasked with navigating a 10x10 grid maze to reach the origin coordinates **(0,0)** using GPS and Compass for localization.
@@ -70,16 +59,7 @@ The robot was tasked with navigating a 10x10 grid maze to reach the origin coord
      The use of **GPS and Compass sensor fusion** allowed for sub-degree heading accuracy, ensuring the robot remained centered within the discrete grid cells during 90-degree turns.
 
 ## 🛠️ Roadmap & Future Iterations
-This run establishes the **Baseline Competition Time** for the project. Future updates will focus on moving from "Heuristic-Based" to "Learning-Based" autonomy:
-| Milestone | Status | Description |
-| :--- | :--- | :--- |
-| **Sensor Baseline** | ✅ Complete | Distance-sensor navigation; metrics: success rate, path efficiency. |
-| **Vision Integration Prep** | 🔄 In Progress | Camera data collection and preprocessing for image-based policies. |
-| **Advanced Policies** | ⏳ Planned | Explore vision-based RL (e.g., image observations → actions) and VLA models (e.g., vision+language → actions) for zero-shot/generalist navigation. |
-| **Evaluation & Ablation** | ⏳ Planned | Compare against baseline across sim (Webots) and real-world transfer. |
-
-
-*Note: Research draws from trends in embodied AI, including RL on visual states and VLA for instruction-following navigation.*
+This run establishes the **Baseline Competition Time** for the project. Future updates will focus on moving from "Heuristic-Based" to "Learning-Based" autonomy.
 
 ---
 *Evaluation generated on: 22 March 2026*
